@@ -39,7 +39,7 @@ if st.button("🌟 GENERAR MI PROYECTO"):
                     st.error("No se encontró la llave GEMINI_API_KEY en los Secrets.")
                 else:
                     genai.configure(api_key=api_key)
-                    model = genai.GenerativeModel('gemini-pro')
+                    model = genai.GenerativeModel('models/gemini-1.5-flash-latest')
                     
                     prompt = f"""
                     Actúa como un experto en Naming para cine. 
