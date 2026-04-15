@@ -1,61 +1,24 @@
 import streamlit as st
 import google.generativeai as genai
 
-# --- CONFIGURACIÓN DE PÁGINA ---
-st.set_page_config(page_title="AI CINE - Hans Drews Arango", page_icon="🎬")
+st.title("🎬 AI CINE - Productor")
 
-st.markdown("""
-    <style>
-    .main { background-color: #1a1a1a; color: #ffffff; }
-    h1 { color: #00f2ff; } 
-    </style>
-    """, unsafe_allow_html=True)
+# Configuración directa
+if "GEMINI_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+else:
+    st.error("Falta la GEMINI_API_KEY en Secrets.")
 
-st.title("🎬 AI CINE: Productor Inteligente")
-st.subheader("Configuración Especial Hans Drews Arango")
+idea = st.text_input("Tu idea de clase:")
 
-# --- PASO 1: LA IDEA ---
-idea_docente = st.text_area("Describe tu proyecto o actividad:", 
-                            placeholder="Ej: Un viaje a la luna...")
-
-col1, col2 = st.columns(2)
-with col1:
-    producto_final = st.selectbox("¿Qué verán en el cine?", ["Cortometraje", "Documental", "Película"])
-with col2:
-    tipo_publicidad = st.selectbox("Publicidad:", ["Infografía", "Afiche"])
-
-# --- PASO 3: LÓGICA DE IA ---
-if st.button("🌟 GENERAR MI PROYECTO"):
-    if idea_docente:
-        with st.spinner("Conectando con el satélite de Gemini..."):
-            try:
-                # 1. Configurar la API
-                genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                
-                # 2. Intentar usar el modelo más moderno (1.5 Flash)
-                # Si falla, el código probará con el modelo Pro automáticamente
-                try:
-                    model = genai.GenerativeModel('gemini-1.5-flash')
-                    test_response = model.generate_content("Hola")
-                except:
-                    model = genai.GenerativeModel('gemini-pro')
-                
-                prompt = f"""
-                Actúa como un experto en Naming para cine. 
-                Idea del docente: "{idea_docente}" para un {producto_final}.
-                Colegio: Hans Drews Arango.
-                
-                Genera 5 nombres creativos y memorables.
-                Da un consejo corto de productor.
-                """
-
-                response = model.generate_content(prompt)
-                
-                st.success("¡Propuestas Listas!")
-                st.markdown(response.text)
-                
-            except Exception as e:
-                st.error(f"Error técnico: {e}")
-                st.info("Prueba a reiniciar la app en 'Manage app -> Reboot'")
+if st.button("Generar Nombres"):
+    if idea:
+        try:
+            # Usamos la llamada más básica posible
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            response = model.generate_content(f"Genera 3 nombres de película para esta idea escolar: {idea}")
+            st.write(response.text)
+        except Exception as e:
+            st.error(f"Error: {e}")
     else:
-        st.warning("Por favor, escribe una idea.")
+        st.warning("Escribe algo primero.")
