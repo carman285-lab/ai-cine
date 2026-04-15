@@ -41,7 +41,7 @@ if st.button("🌟 GENERAR MI PROYECTO"):
                 genai.configure(api_key=api_key)
                 
                 # Definir el modelo (versión estable)
-                model = genai.GenerativeModel('gemini-1.5-flash')
+                model = genai.GenerativeModel('gemini-pro')
                 
                 prompt = f"""
                 Actúa como un experto en Naming para cine. 
