@@ -1,68 +1,58 @@
 import streamlit as st
-from openai import OpenAI
+import google.generativeai as genai
 import time
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="AI CINE - Hans Drews Arango", page_icon="🎬")
 
-# Estética de cine
 st.markdown("""
     <style>
     .main { background-color: #1a1a1a; color: #ffffff; }
-    h1 { color: #e50914; } 
+    h1 { color: #00f2ff; } 
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🎬 AI CINE: De la Clase a la Pantalla")
-st.subheader("Transforma tus metodologías activas en una superproducción")
+st.title("🎬 AI CINE: Productor Inteligente")
+st.subheader("Impulsado por Google Gemini")
 
 # --- PASO 1: LA IDEA ---
-st.info("Docente, cuéntanos qué sucede en tu aula. ¡Suelta tu creatividad!")
-idea_docente = st.text_area("Describe tu proyecto o actividad:", 
-                            placeholder="Ej: Mis estudiantes están creando robots para limpiar el río Otún...")
+idea_docente = st.text_area("Describe tu proyecto pedagógico:", 
+                            placeholder="Ej: Estudiantes de inglés graban un podcast sobre leyendas de Pereira...")
 
-# --- PASO 2: SELECCIÓN DE DESTINO ---
 col1, col2 = st.columns(2)
 with col1:
-    producto_final = st.selectbox("¿Qué verán en el cine al final de año?", 
+    producto_final = st.selectbox("Producto de fin de año:", 
                                  ["Cortometraje", "Documental", "Roleplay", "Campaña Publicitaria", "Película"])
 with col2:
-    tipo_publicidad = st.selectbox("¿Qué publicidad crearemos hoy?", 
+    tipo_publicidad = st.selectbox("Pieza publicitaria inicial:", 
                                   ["Infografía", "Afiche", "Video publicitario corto"])
 
-# --- PASO 3: LÓGICA DE IA REAL ---
+# --- PASO 3: LÓGICA DE GEMINI ---
 if st.button("🌟 GENERAR MI PROYECTO"):
     if idea_docente:
-        with st.spinner("Consultando con el comité de guionistas de IA..."):
+        with st.spinner("Gemini está analizando tu propuesta creativa..."):
             try:
-                # Conexión con OpenAI usando los Secretos de Streamlit
-                client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+                # Configurar la API de Google
+                genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+                model = genai.GenerativeModel('gemini-1.5-flash')
                 
-                prompt_sistema = f"""
-                Eres un creativo de Hollywood experto en Naming. 
-                Un docente del colegio Hans Drews Arango tiene esta idea: "{idea_docente}"
-                Su objetivo final es realizar un {producto_final}.
+                prompt = f"""
+                Actúa como un experto en Naming para cine. 
+                Idea del docente: "{idea_docente}"
+                Tipo de producto: {producto_final}
+                Colegio: Hans Drews Arango.
                 
-                Genera 5 nombres creativos, poderosos y memorables. 
-                Mézclalos: algunos en español, otros bilingües, y algunos con un toque de acción o misterio.
-                No uses nombres genéricos.
+                Genera 5 nombres creativos y memorables (algunos bilingües).
+                Luego, da un consejo corto de productor para lograr este {producto_final}.
                 """
 
-                response = client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=[{"role": "user", "content": prompt_sistema}]
-                )
+                response = model.generate_content(prompt)
                 
-                nombres_ia = response.choices[0].message.content
-
-                st.success("¡Propuestas de Naming Listas!")
-                st.markdown("### 🏆 Títulos Sugeridos para tu Producción:")
-                st.write(nombres_ia)
-                
-                st.info(f"Seleccionado: {producto_final} | Publicidad: {tipo_publicidad}")
+                st.success("¡Propuestas Listas!")
+                st.markdown(response.text)
+                st.info(f"Ruta: {producto_final} -> {tipo_publicidad}")
                 
             except Exception as e:
-                st.error("Error: Verifica que hayas configurado la OPENAI_API_KEY en los Secrets de Streamlit.")
-                st.write(e)
+                st.error("Error de conexión. Verifica la GEMINI_API_KEY en Secrets.")
     else:
-        st.warning("Por favor, escribe una idea para que la IA pueda trabajar.")
+        st.warning("Por favor, describe tu idea.")
