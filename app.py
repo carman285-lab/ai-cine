@@ -4,7 +4,6 @@ import google.generativeai as genai
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="AI CINE - Hans Drews Arango", page_icon="🎬")
 
-# Estética de cine
 st.markdown("""
     <style>
     .main { background-color: #1a1a1a; color: #ffffff; }
@@ -13,55 +12,50 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 st.title("🎬 AI CINE: Productor Inteligente")
-st.subheader("Impulsado por Google Gemini")
+st.subheader("Configuración Especial Hans Drews Arango")
 
 # --- PASO 1: LA IDEA ---
-st.info("Docente, cuéntanos qué sucede en tu aula. ¡Suelta tu creatividad!")
 idea_docente = st.text_area("Describe tu proyecto o actividad:", 
-                            placeholder="Ej: Mis estudiantes están creando robots para limpiar el río Otún...")
+                            placeholder="Ej: Un viaje a la luna...")
 
-# --- PASO 2: SELECCIÓN DE DESTINO ---
 col1, col2 = st.columns(2)
 with col1:
-    producto_final = st.selectbox("¿Qué verán en el cine al final de año?", 
-                                 ["Cortometraje", "Documental", "Roleplay", "Campaña Publicitaria", "Película"])
+    producto_final = st.selectbox("¿Qué verán en el cine?", ["Cortometraje", "Documental", "Película"])
 with col2:
-    tipo_publicidad = st.selectbox("¿Qué publicidad crearemos hoy?", 
-                                  ["Infografía", "Afiche", "Video publicitario corto"])
+    tipo_publicidad = st.selectbox("Publicidad:", ["Infografía", "Afiche"])
 
 # --- PASO 3: LÓGICA DE IA ---
 if st.button("🌟 GENERAR MI PROYECTO"):
     if idea_docente:
-        with st.spinner("Gemini está analizando tu propuesta creativa..."):
+        with st.spinner("Conectando con el satélite de Gemini..."):
             try:
-                # Obtener la llave de los Secretos
-                api_key = st.secrets["GEMINI_API_KEY"]
+                # 1. Configurar la API
+                genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
                 
-                # Configurar Google Generative AI
-                genai.configure(api_key=api_key)
-                
-                # Definir el modelo (versión estable)
-                model = genai.GenerativeModel('gemini-pro')
+                # 2. Intentar usar el modelo más moderno (1.5 Flash)
+                # Si falla, el código probará con el modelo Pro automáticamente
+                try:
+                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    test_response = model.generate_content("Hola")
+                except:
+                    model = genai.GenerativeModel('gemini-pro')
                 
                 prompt = f"""
                 Actúa como un experto en Naming para cine. 
-                Un docente del colegio Hans Drews Arango tiene esta idea: "{idea_docente}"
-                Su objetivo final es realizar un {producto_final}.
+                Idea del docente: "{idea_docente}" para un {producto_final}.
+                Colegio: Hans Drews Arango.
                 
-                Genera 5 nombres creativos, poderosos y memorables. 
-                Mézclalos: algunos en español, otros bilingües, y algunos con un toque de acción o misterio.
-                No uses nombres genéricos. 
-                Al final, da un consejo muy corto de productor para el docente.
+                Genera 5 nombres creativos y memorables.
+                Da un consejo corto de productor.
                 """
 
                 response = model.generate_content(prompt)
                 
                 st.success("¡Propuestas Listas!")
                 st.markdown(response.text)
-                st.info(f"Ruta seleccionada: {producto_final} + {tipo_publicidad}")
                 
             except Exception as e:
-                st.error(f"Hubo un problema técnico. Verifica la GEMINI_API_KEY en Secrets.")
-                st.write(f"Detalle del error: {e}")
+                st.error(f"Error técnico: {e}")
+                st.info("Prueba a reiniciar la app en 'Manage app -> Reboot'")
     else:
-        st.warning("Por favor, escribe una idea para que la IA pueda trabajar.")
+        st.warning("Por favor, escribe una idea.")
