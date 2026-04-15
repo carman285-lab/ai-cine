@@ -1,9 +1,41 @@
+import streamlit as st
+from openai import OpenAI
+import time
+
+# --- CONFIGURACIÓN DE PÁGINA ---
+st.set_page_config(page_title="AI CINE - Hans Drews Arango", page_icon="🎬")
+
+# Estética de cine
+st.markdown("""
+    <style>
+    .main { background-color: #1a1a1a; color: #ffffff; }
+    h1 { color: #e50914; } 
+    </style>
+    """, unsafe_allow_html=True)
+
+st.title("🎬 AI CINE: De la Clase a la Pantalla")
+st.subheader("Transforma tus metodologías activas en una superproducción")
+
+# --- PASO 1: LA IDEA ---
+st.info("Docente, cuéntanos qué sucede en tu aula. ¡Suelta tu creatividad!")
+idea_docente = st.text_area("Describe tu proyecto o actividad:", 
+                            placeholder="Ej: Mis estudiantes están creando robots para limpiar el río Otún...")
+
+# --- PASO 2: SELECCIÓN DE DESTINO ---
+col1, col2 = st.columns(2)
+with col1:
+    producto_final = st.selectbox("¿Qué verán en el cine al final de año?", 
+                                 ["Cortometraje", "Documental", "Roleplay", "Campaña Publicitaria", "Película"])
+with col2:
+    tipo_publicidad = st.selectbox("¿Qué publicidad crearemos hoy?", 
+                                  ["Infografía", "Afiche", "Video publicitario corto"])
+
 # --- PASO 3: LÓGICA DE IA REAL ---
 if st.button("🌟 GENERAR MI PROYECTO"):
     if idea_docente:
         with st.spinner("Consultando con el comité de guionistas de IA..."):
             try:
-                # Conexión con OpenAI
+                # Conexión con OpenAI usando los Secretos de Streamlit
                 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
                 
                 prompt_sistema = f"""
@@ -27,9 +59,10 @@ if st.button("🌟 GENERAR MI PROYECTO"):
                 st.markdown("### 🏆 Títulos Sugeridos para tu Producción:")
                 st.write(nombres_ia)
                 
-                st.info(f"Seleccionado: {producto_final} + Publicidad: {tipo_publicidad}")
+                st.info(f"Seleccionado: {producto_final} | Publicidad: {tipo_publicidad}")
                 
             except Exception as e:
-                st.error("Necesitamos configurar la API Key para que la IA pueda pensar.")
+                st.error("Error: Verifica que hayas configurado la OPENAI_API_KEY en los Secrets de Streamlit.")
+                st.write(e)
     else:
-        st.warning("Por favor, describe tu idea para que la IA pueda trabajar.")
+        st.warning("Por favor, escribe una idea para que la IA pueda trabajar.")
