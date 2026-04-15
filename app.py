@@ -27,32 +27,36 @@ with col2:
     tipo_publicidad = st.selectbox("Pieza publicitaria inicial:", 
                                   ["Infografía", "Afiche", "Video publicitario corto"])
 
-# --- PASO 3: LÓGICA DE GEMINI ---
+# --- PASO 3: LÓGICA DE GEMINI AJUSTADA ---
 if st.button("🌟 GENERAR MI PROYECTO"):
     if idea_docente:
         with st.spinner("Gemini está analizando tu propuesta creativa..."):
             try:
-                # Configurar la API de Google
-                genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                model = genai.GenerativeModel('gemini-1.5-flash')
+                # Intentar obtener la llave de diferentes formas por si acaso
+                api_key = st.secrets.get("GEMINI_API_KEY")
                 
-                prompt = f"""
-                Actúa como un experto en Naming para cine. 
-                Idea del docente: "{idea_docente}"
-                Tipo de producto: {producto_final}
-                Colegio: Hans Drews Arango.
-                
-                Genera 5 nombres creativos y memorables (algunos bilingües).
-                Luego, da un consejo corto de productor para lograr este {producto_final}.
-                """
+                if not api_key:
+                    st.error("No se encontró la llave GEMINI_API_KEY en los Secrets.")
+                else:
+                    genai.configure(api_key=api_key)
+                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    
+                    prompt = f"""
+                    Actúa como un experto en Naming para cine. 
+                    Idea del docente: "{idea_docente}"
+                    Tipo de producto: {producto_final}
+                    Colegio: Hans Drews Arango.
+                    
+                    Genera 5 nombres creativos y memorables (algunos bilingües).
+                    Luego, da un consejo corto de productor para lograr este {producto_final}.
+                    """
 
-                response = model.generate_content(prompt)
-                
-                st.success("¡Propuestas Listas!")
-                st.markdown(response.text)
-                st.info(f"Ruta: {producto_final} -> {tipo_publicidad}")
-                
+                    response = model.generate_content(prompt)
+                    
+                    st.success("¡Propuestas Listas!")
+                    st.markdown(response.text)
+            
             except Exception as e:
-                st.error("Error de conexión. Verifica la GEMINI_API_KEY en Secrets.")
+                st.error(f"Hubo un problema técnico: {e}")
     else:
         st.warning("Por favor, describe tu idea.")
