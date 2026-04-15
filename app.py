@@ -1,10 +1,10 @@
 import streamlit as st
 import google.generativeai as genai
-import time
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="AI CINE - Hans Drews Arango", page_icon="🎬")
 
+# Estética de cine
 st.markdown("""
     <style>
     .main { background-color: #1a1a1a; color: #ffffff; }
@@ -16,53 +16,52 @@ st.title("🎬 AI CINE: Productor Inteligente")
 st.subheader("Impulsado por Google Gemini")
 
 # --- PASO 1: LA IDEA ---
-idea_docente = st.text_area("Describe tu proyecto pedagógico:", 
-                            placeholder="Ej: Estudiantes de inglés graban un podcast sobre leyendas de Pereira...")
+st.info("Docente, cuéntanos qué sucede en tu aula. ¡Suelta tu creatividad!")
+idea_docente = st.text_area("Describe tu proyecto o actividad:", 
+                            placeholder="Ej: Mis estudiantes están creando robots para limpiar el río Otún...")
 
+# --- PASO 2: SELECCIÓN DE DESTINO ---
 col1, col2 = st.columns(2)
 with col1:
-    producto_final = st.selectbox("Producto de fin de año:", 
+    producto_final = st.selectbox("¿Qué verán en el cine al final de año?", 
                                  ["Cortometraje", "Documental", "Roleplay", "Campaña Publicitaria", "Película"])
 with col2:
-    tipo_publicidad = st.selectbox("Pieza publicitaria inicial:", 
+    tipo_publicidad = st.selectbox("¿Qué publicidad crearemos hoy?", 
                                   ["Infografía", "Afiche", "Video publicitario corto"])
 
-# --- PASO 3: LÓGICA DE GEMINI AJUSTADA ---
+# --- PASO 3: LÓGICA DE IA ---
 if st.button("🌟 GENERAR MI PROYECTO"):
     if idea_docente:
         with st.spinner("Gemini está analizando tu propuesta creativa..."):
             try:
-                # Intentar obtener la llave de diferentes formas por si acaso
-                api_key = st.secrets.get("GEMINI_API_KEY")
+                # Obtener la llave de los Secretos
+                api_key = st.secrets["GEMINI_API_KEY"]
                 
-                if not api_key:
-                    st.error("No se encontró la llave GEMINI_API_KEY en los Secrets.")
-                else:
-
-                    # Configurar la API de Google
+                # Configurar Google Generative AI
                 genai.configure(api_key=api_key)
                 
-                # ESTA ES LA LÍNEA CLAVE:
-                model = genai.GenerativeModel('gemini-1.5-flash'
-                    genai.configure(api_key=api_key)
-                    model = genai.GenerativeModel('gemini-1.5-flash')
-                    
-                    prompt = f"""
-                    Actúa como un experto en Naming para cine. 
-                    Idea del docente: "{idea_docente}"
-                    Tipo de producto: {producto_final}
-                    Colegio: Hans Drews Arango.
-                    
-                    Genera 5 nombres creativos y memorables (algunos bilingües).
-                    Luego, da un consejo corto de productor para lograr este {producto_final}.
-                    """
+                # Definir el modelo (versión estable)
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                
+                prompt = f"""
+                Actúa como un experto en Naming para cine. 
+                Un docente del colegio Hans Drews Arango tiene esta idea: "{idea_docente}"
+                Su objetivo final es realizar un {producto_final}.
+                
+                Genera 5 nombres creativos, poderosos y memorables. 
+                Mézclalos: algunos en español, otros bilingües, y algunos con un toque de acción o misterio.
+                No uses nombres genéricos. 
+                Al final, da un consejo muy corto de productor para el docente.
+                """
 
-                    response = model.generate_content(prompt)
-                    
-                    st.success("¡Propuestas Listas!")
-                    st.markdown(response.text)
-            
+                response = model.generate_content(prompt)
+                
+                st.success("¡Propuestas Listas!")
+                st.markdown(response.text)
+                st.info(f"Ruta seleccionada: {producto_final} + {tipo_publicidad}")
+                
             except Exception as e:
-                st.error(f"Hubo un problema técnico: {e}")
+                st.error(f"Hubo un problema técnico. Verifica la GEMINI_API_KEY en Secrets.")
+                st.write(f"Detalle del error: {e}")
     else:
-        st.warning("Por favor, describe tu idea.")
+        st.warning("Por favor, escribe una idea para que la IA pueda trabajar.")
