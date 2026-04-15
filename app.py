@@ -38,8 +38,14 @@ if st.button("🌟 GENERAR MI PROYECTO"):
                 if not api_key:
                     st.error("No se encontró la llave GEMINI_API_KEY en los Secrets.")
                 else:
+
+                    # Configurar la API de Google
+                genai.configure(api_key=api_key)
+                
+                # ESTA ES LA LÍNEA CLAVE:
+                model = genai.GenerativeModel('gemini-1.5-flash'
                     genai.configure(api_key=api_key)
-                    model = genai.GenerativeModel('models/gemini-1.5-flash-latest')
+                    model = genai.GenerativeModel('gemini-1.5-flash')
                     
                     prompt = f"""
                     Actúa como un experto en Naming para cine. 
